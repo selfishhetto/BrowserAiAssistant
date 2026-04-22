@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Hotkey</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@400;700&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0d0f;
+      --surface: #17171a;
+      --border: #2a2a30;
+      --accent: #00e5a0;
+      --accent-dim: rgba(0, 229, 160, 0.12);
+      --text: #e8e8f0;
+      --muted: #6b6b7a;
+      --danger: #ff4d6a;
+    }
+
+    body {
+      width: 320px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .header {
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+    }
+
+    .logo {
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .header-text h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.05em;
+    }
+
+    .header-text p {
+      color: var(--muted);
+      font-size: 10px;
+      margin-top: 1px;
+    }
+
+    .status-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: var(--accent-dim);
+      border-bottom: 1px solid var(--border);
+      font-size: 10px;
+      color: var(--accent);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .status-dot.offline {
+      background: var(--danger);
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .body { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+
+    .field { display: flex; flex-direction: column; gap: 5px; }
+
+    label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    input, textarea {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      padding: 8px 10px;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--accent);
+    }
+
+    textarea {
+      resize: none;
+      height: 60px;
+      line-height: 1.5;
+    }
+
+    .hotkey-badge {
+      display: inline-flex;
+      gap: 3px;
+      align-items: center;
+    }
+
+    kbd {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      padding: 9px 14px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      width: 100%;
+    }
+
+    .btn:hover { opacity: 0.88; }
+    .btn:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 400;
+      margin-top: -6px;
+    }
+
+    .btn-secondary:hover { color: var(--text); border-color: var(--text); opacity: 1; }
+
+    .saved-toast {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--accent);
+      color: #000;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.2s;
+      pointer-events: none;
+    }
+
+    .saved-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0 -18px;
+    }
+
+    .hint {
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .hint a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">⚡</div>
+    <div class="header-text">
+      <h1>AI HOTKEY</h1>
+      <p>Выдели → Нажми → Получи</p>
+    </div>
+  </div>
+
+  <div class="status-bar" id="statusBar">
+    <div class="status-dot" id="statusDot"></div>
+    <span id="statusText">Проверяю сервер...</span>
+  </div>
+
+  <div class="body">
+    <div class="field">
+      <label>Хоткей</label>
+      <div class="hotkey-badge">
+        <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd>
+        <span style="color: var(--muted); margin-left: 6px; font-size: 10px;">/ Cmd на Mac</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Системный промпт</label>
+      <textarea id="systemPrompt" placeholder="Отвечай кратко и по делу. Если это код — объясни что он делает."></textarea>
+    </div>
+
+    <button class="btn" id="saveBtn">СОХРАНИТЬ</button>
+    <button class="btn btn-secondary" id="testBtn">Тест → отправить привет в Telegram</button>
+
+    <div class="divider"></div>
+
+    <p class="hint">
+      Сервер: <code style="color: var(--accent)">localhost:3747</code><br>
+      Токены и chat_id — в <code>server/.env</code>
+    </p>
+  </div>
+
+  <div class="saved-toast" id="toast">Сохранено ✓</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

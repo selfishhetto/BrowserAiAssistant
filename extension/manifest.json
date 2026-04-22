@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "AI Hotkey → Telegram",
+  "version": "1.0",
+  "description": "Выдели текст, нажми Ctrl+Shift+A — ответ придёт в Telegram",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "commands"
+  ],
+  "host_permissions": [
+    "http://localhost:3747/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "send-to-ai": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+A",
+        "mac": "Command+Shift+A"
+      },
+      "description": "Отправить выделенный текст в AI"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}
