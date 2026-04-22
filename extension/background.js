@@ -1,4 +1,4 @@
-const SERVER_URL = 'http://localhost:3747';
+const SERVER_URL = 'https://browseraiassistant-production.up.railway.app';
 
 // Слушаем хоткей
 chrome.commands.onCommand.addListener(async (command) => {
