@@ -1,4 +1,4 @@
-const SERVER = 'http://localhost:3747';
+const SERVER = 'https://browseraiassistant-production.up.railway.app';
 
 const systemPromptEl = document.getElementById('systemPrompt');
 const saveBtn = document.getElementById('saveBtn');
@@ -8,15 +8,13 @@ const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
 const statusBar = document.getElementById('statusBar');
 
-// Загружаем сохранённые настройки
 chrome.storage.sync.get(['systemPrompt'], (data) => {
   systemPromptEl.value = data.systemPrompt || '';
 });
 
-// Проверяем статус сервера
 async function checkServer() {
   try {
-    const res = await fetch(`${SERVER}/health`, { signal: AbortSignal.timeout(2000) });
+    const res = await fetch(`${SERVER}/health`, { signal: AbortSignal.timeout(3000) });
     if (res.ok) {
       statusDot.classList.remove('offline');
       statusText.textContent = 'Сервер работает';
@@ -27,7 +25,7 @@ async function checkServer() {
     }
   } catch {
     statusDot.classList.add('offline');
-    statusText.textContent = 'Сервер не запущен — запусти node server.js';
+    statusText.textContent = 'Сервер недоступен';
     statusBar.style.background = 'rgba(255, 77, 106, 0.10)';
     statusBar.style.color = 'var(--danger)';
   }
@@ -35,7 +33,6 @@ async function checkServer() {
 
 checkServer();
 
-// Сохранение
 saveBtn.addEventListener('click', () => {
   chrome.storage.sync.set({ systemPrompt: systemPromptEl.value }, () => {
     toast.classList.add('show');
@@ -43,7 +40,6 @@ saveBtn.addEventListener('click', () => {
   });
 });
 
-// Тест
 testBtn.addEventListener('click', async () => {
   testBtn.textContent = 'Отправляю...';
   testBtn.disabled = true;
