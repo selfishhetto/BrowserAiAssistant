@@ -2,12 +2,12 @@
   "manifest_version": 2,
   "name": "AI Hotkey → Telegram",
   "version": "1.0",
-  "description": "Выдели текст, нажми Ctrl+Shift+A — ответ придёт в Telegram",
+  "description": "Выдели текст, нажми Ctrl+Shift+Y — ответ придёт в Telegram",
   "permissions": [
     "activeTab",
     "storage",
     "notifications",
-    "http://localhost:3747/*"
+    "https://browseraiassistant-production.up.railway.app/*"
   ],
   "background": {
     "scripts": ["background_firefox.js"],
@@ -29,7 +29,7 @@
   "commands": {
     "send-to-ai": {
       "suggested_key": {
-        "default": "Ctrl+Shift+A"
+        "default": "Ctrl+Shift+Y"
       },
       "description": "Отправить выделенный текст в AI"
     }
