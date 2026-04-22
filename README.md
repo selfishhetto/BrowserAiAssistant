@@ -28,7 +28,6 @@ ai-hotkey/
 ## Требования
 
 - Node.js 18+
-- Python 3.8+ (только для desktop версии)
 - Telegram бот
 - API ключ Google AI Studio (бесплатно)
 
