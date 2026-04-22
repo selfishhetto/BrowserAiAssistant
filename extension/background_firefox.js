@@ -1,5 +1,4 @@
-// Firefox использует browser.* вместо chrome.* (с промисами)
-const SERVER_URL = 'http://localhost:3747';
+const SERVER_URL = 'https://browseraiassistant-production.up.railway.app';
 
 browser.commands.onCommand.addListener(async (command) => {
   if (command === 'send-to-ai') {
@@ -20,7 +19,7 @@ browser.commands.onCommand.addListener(async (command) => {
 
     } catch (err) {
       console.error('AI Hotkey error:', err);
-      showNotification('❌ Ошибка', 'Сервер не отвечает. Запущен ли server.js?');
+      showNotification('❌ Ошибка', 'Сервер не отвечает');
     }
   }
 });
@@ -37,7 +36,7 @@ async function sendToServer(text, sourceUrl, sourceTitle) {
     throw new Error(err.error || `HTTP ${res.status}`);
   }
 
-  showNotification('✅ Отправлено!', 'Ответ придёт в Telegram через несколько секунд');
+  showNotification('✅ Отправлено!', 'Ответ придёт в Telegram');
   return res.json();
 }
 
