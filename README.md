@@ -1,24 +1,24 @@
 # AI Hotkey → Telegram
 
-Выдели текст в браузере → нажми **Ctrl+Shift+A** → получи ответ от **Gemma 3 27B** в Telegram.
+Select text in your browser → press **Ctrl+Shift+A** → get a **Gemma 3 27B** response in Telegram.
 
-Модель бесплатная: [Google AI Studio](https://aistudio.google.com/) даёт ~500 запросов в день без карты.
+The model is free: [Google AI Studio](https://aistudio.google.com/) gives ~500 requests/day with no card required.
 
 ---
 
-## Структура проекта
+## Project Structure
 
 ```
 ai-hotkey/
-├── extension/              ← Браузерное расширение
+├── extension/              ← Browser extension
 │   ├── manifest.json           Chrome / Edge
 │   ├── manifest_firefox.json   Firefox
 │   ├── background.js           Chrome background
 │   ├── background_firefox.js   Firefox background
-│   ├── content.js              Получение выделенного текста
-│   ├── popup.html / popup.js   Интерфейс настроек
+│   ├── content.js              Gets selected text
+│   ├── popup.html / popup.js   Settings UI
 │   └── icons/
-└── server/                 ← Локальный Node.js сервер
+└── server/                 ← Local Node.js server
     ├── server.js
     ├── package.json
     └── .env
@@ -26,107 +26,107 @@ ai-hotkey/
 
 ---
 
-## ШАГ 1 — Получить Gemini API ключ (бесплатно)
+## STEP 1 — Get a Gemini API key (free)
 
-1. Открой [aistudio.google.com](https://aistudio.google.com/)
-2. Войди через Google аккаунт
-3. Нажми **Get API key** → **Create API key**
-4. Скопируй ключ вида `AIzaSy...`
+1. Open [aistudio.google.com](https://aistudio.google.com/)
+2. Sign in with your Google account
+3. Click **Get API key** → **Create API key**
+4. Copy the key (looks like `AIzaSy...`)
 
 ---
 
-## ШАГ 2 — Создать Telegram бота
+## STEP 2 — Create a Telegram bot
 
-1. Открой Telegram, найди **@BotFather**
-2. Напиши `/newbot`, придумай имя и username
-3. Скопируй токен вида `1234567890:ABCdef...`
-4. Напиши своему боту `/start`
-5. Открой в браузере (подставь свой токен):
+1. Open Telegram, find **@BotFather**
+2. Send `/newbot`, choose a name and username
+3. Copy the **token** (looks like `1234567890:ABCdef...`)
+4. Send `/start` to your new bot
+5. Open in your browser (replace with your token):
    ```
    https://api.telegram.org/bot<TOKEN>/getUpdates
    ```
-6. Найди `"chat":{"id": XXXXXXX}` — это твой **Chat ID**
+6. Find `"chat":{"id": XXXXXXX}` — that's your **Chat ID**
 
 ---
 
-## ШАГ 3 — Настроить сервер
+## STEP 3 — Configure the server
 
 ```bash
 cd server
 npm install
 ```
 
-Создай файл `.env` в папке `server/`:
+Create a `.env` file inside the `server/` folder:
 ```env
-GEMINI_API_KEY=AIzaSy...           # из Google AI Studio
-TELEGRAM_BOT_TOKEN=1234567890:...  # от @BotFather
-TELEGRAM_CHAT_ID=123456789         # из getUpdates
+GEMINI_API_KEY=AIzaSy...           # from Google AI Studio
+TELEGRAM_BOT_TOKEN=1234567890:...  # from @BotFather
+TELEGRAM_CHAT_ID=123456789         # from getUpdates
 ```
 
-Запусти сервер:
+Start the server:
 ```bash
 node server.js
 ```
 
-Ты увидишь:
+You should see:
 ```
 ╔══════════════════════════════════════╗
 ║        AI Hotkey Server v1.0         ║
 ╠══════════════════════════════════════╣
-║  Модель: Gemma 3 27B                 ║
-║  Лимит: 500 запросов/день            ║
-║  Порт: 3747                          ║
+║  Model: Gemma 3 27B                  ║
+║  Limit: 500 requests/day             ║
+║  Port: 3747                          ║
 ╚══════════════════════════════════════╝
 ```
 
-> **Сервер должен быть запущен всегда, когда хочешь пользоваться хоткеем.**
-> Для автозапуска см. раздел ниже.
+> **The server must be running whenever you want to use the hotkey.**
+> See the auto-start section below.
 
 ---
 
-## ШАГ 4 — Установить расширение
+## STEP 4 — Install the extension
 
 ### Chrome / Edge
 
-1. Открой `chrome://extensions/`
-2. Включи **«Режим разработчика»** (правый верхний угол)
-3. Нажми **«Загрузить распакованное»**
-4. Выбери папку `extension/`
+1. Open `chrome://extensions/` (or `edge://extensions/`)
+2. Enable **Developer mode** (top right corner)
+3. Click **Load unpacked**
+4. Select the `extension/` folder
 
 ### Firefox
 
-1. Переименуй `manifest_firefox.json` → `manifest.json`
-2. Открой `about:debugging` → **«Этот Firefox»**
-3. Нажми **«Загрузить временное дополнение»**
-4. Выбери файл `extension/manifest.json`
+1. Rename `manifest_firefox.json` → `manifest.json`
+2. Open `about:debugging` → **This Firefox**
+3. Click **Load Temporary Add-on**
+4. Select `extension/manifest.json`
 
 ---
 
-## ШАГ 5 — Использование
+## STEP 5 — Usage
 
-1. **Выдели любой текст** на любой странице
-2. Нажми **Ctrl+Shift+A** (Mac: Cmd+Shift+A)
-3. В правом углу появится уведомление браузера
-4. Через несколько секунд — **ответ в Telegram**
+1. **Select any text** on any page
+2. Press **Ctrl+Shift+A** (Mac: Cmd+Shift+A)
+3. A browser notification will appear in the corner
+4. A few seconds later — **response in Telegram**
 
 ---
 
-## Автозапуск сервера
+## Auto-start the server
 
-### Windows — bat файл в автозагрузке
+### Windows — bat file in Startup
 
-Создай файл `start-ai-hotkey.bat`:
+Create `start-ai-hotkey.bat`:
 ```bat
 @echo off
-cd /d C:\путь\до\ai-hotkey\server
+cd /d C:\path\to\ai-hotkey\server
 node server.js
 ```
 
-Нажми Win+R → `shell:startup` → скопируй bat файл туда.
+Press Win+R → `shell:startup` → copy the bat file there.
 
 ### macOS — LaunchAgent
 
-Создай `~/Library/LaunchAgents/ai.hotkey.plist`:
+Create `~/Library/LaunchAgents/ai.hotkey.plist`:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -136,9 +136,9 @@ node server.js
   <key>ProgramArguments</key>
   <array>
     <string>/usr/local/bin/node</string>
-    <string>/путь/до/ai-hotkey/server/server.js</string>
+    <string>/path/to/ai-hotkey/server/server.js</string>
   </array>
-  <key>WorkingDirectory</key><string>/путь/до/ai-hotkey/server</string>
+  <key>WorkingDirectory</key><string>/path/to/ai-hotkey/server</string>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
 </dict>
@@ -156,7 +156,7 @@ launchctl load ~/Library/LaunchAgents/ai.hotkey.plist
 Description=AI Hotkey Server
 
 [Service]
-WorkingDirectory=/путь/до/ai-hotkey/server
+WorkingDirectory=/path/to/ai-hotkey/server
 ExecStart=/usr/bin/node server.js
 Restart=always
 
@@ -170,18 +170,18 @@ systemctl --user start ai-hotkey
 
 ---
 
-## Изменить хоткей
+## Change the hotkey
 
-В Chrome: `chrome://extensions/shortcuts`
-В Firefox: `about:addons` → шестерёнка → «Управление горячими клавишами»
+Chrome: `chrome://extensions/shortcuts`
+Firefox: `about:addons` → gear icon → Manage Extension Shortcuts
 
 ---
 
-## Изменить системный промпт
+## Change the system prompt
 
-**Вариант 1:** Открой popup расширения (кликни на иконку) → измени поле «Системный промпт»
+**Option 1:** Open the extension popup (click the icon) → edit the System Prompt field
 
-**Вариант 2:** Добавь в `.env`:
+**Option 2:** Add to `.env`:
 ```env
-SYSTEM_PROMPT=Отвечай кратко на русском языке.
+SYSTEM_PROMPT=Answer briefly and clearly.
 ```
