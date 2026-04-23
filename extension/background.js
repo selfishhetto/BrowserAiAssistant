@@ -27,11 +27,10 @@ chrome.commands.onCommand.addListener(async (command) => {
 });
 
 async function sendToServer(text, sourceUrl, sourceTitle) {
-  const { accessToken } = await chrome.storage.sync.get(['accessToken']);
   const res = await fetch(`${SERVER_URL}/ask`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, sourceUrl, sourceTitle, token: accessToken || '' })
+    body: JSON.stringify({ text, sourceUrl, sourceTitle })
   });
 
   if (!res.ok) {

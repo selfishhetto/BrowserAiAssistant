@@ -1,7 +1,6 @@
 const SERVER = 'https://browseraiassistant-production.up.railway.app';
 
 const systemPromptEl = document.getElementById('systemPrompt');
-const accessTokenEl = document.getElementById('accessToken');
 const saveBtn = document.getElementById('saveBtn');
 const testBtn = document.getElementById('testBtn');
 const toast = document.getElementById('toast');
@@ -9,9 +8,8 @@ const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
 const statusBar = document.getElementById('statusBar');
 
-chrome.storage.sync.get(['systemPrompt', 'accessToken'], (data) => {
+chrome.storage.sync.get(['systemPrompt'], (data) => {
   systemPromptEl.value = data.systemPrompt || '';
-  accessTokenEl.value = data.accessToken || '';
 });
 
 async function checkServer() {
@@ -36,10 +34,7 @@ async function checkServer() {
 checkServer();
 
 saveBtn.addEventListener('click', () => {
-  chrome.storage.sync.set({
-    systemPrompt: systemPromptEl.value,
-    accessToken: accessTokenEl.value.trim()
-  }, () => {
+  chrome.storage.sync.set({ systemPrompt: systemPromptEl.value }, () => {
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 1800);
   });
@@ -49,17 +44,15 @@ testBtn.addEventListener('click', async () => {
   testBtn.textContent = 'Отправляю...';
   testBtn.disabled = true;
   try {
-    const { accessToken } = await chrome.storage.sync.get(['accessToken']);
     const res = await fetch(`${SERVER}/ask`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: 'Привет! Расширение работает.', sourceTitle: 'Тест', token: accessToken || '' })
+      body: JSON.stringify({ text: 'Привет! Расширение работает.', sourceTitle: 'Тест' })
     });
     if (res.ok) {
       testBtn.textContent = '✓ Проверь Telegram!';
     } else {
-      const err = await res.json().catch(() => ({}));
-      testBtn.textContent = err.error?.includes('доступ') ? '✗ Неверный ключ' : '✗ Ошибка сервера';
+      testBtn.textContent = '✗ Ошибка сервера';
     }
   } catch {
     testBtn.textContent = '✗ Сервер недоступен';
