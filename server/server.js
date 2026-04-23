@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const PORT = 3747;
@@ -11,6 +13,15 @@ app.use(express.json());
 app.get('/health', (req, res) => {
   res.json({ ok: true, time: new Date().toISOString() });
 });
+
+function loadWhitelist() {
+  try {
+    const raw = fs.readFileSync(path.join(__dirname, 'whitelist.json'), 'utf8');
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
 
 async function askGemini(systemPrompt, userMessage, retries = 3) {
   for (let i = 0; i < retries; i++) {
@@ -23,7 +34,6 @@ async function askGemini(systemPrompt, userMessage, retries = 3) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          
           contents: [{ parts: [{ text: systemPrompt + "\n\n" + userMessage }] }],
           generationConfig: { maxOutputTokens: 512 }
         })
@@ -48,11 +58,25 @@ async function askGemini(systemPrompt, userMessage, retries = 3) {
 }
 
 app.post('/ask', async (req, res) => {
-  const { text, sourceUrl, sourceTitle } = req.body;
+  const { text, sourceUrl, sourceTitle, token } = req.body;
 
   if (!text?.trim()) return res.status(400).json({ error: 'text is required' });
 
-  console.log(`\n📨 Запрос от: ${sourceTitle || sourceUrl || 'неизвестно'}`);
+  // Вайтлист
+  const whitelist = loadWhitelist();
+  let chatId = process.env.TELEGRAM_CHAT_ID;
+  let userName = 'unknown';
+
+  if (whitelist) {
+    if (!token || !whitelist[token]) {
+      console.warn(`🚫 Отклонён запрос — неизвестный токен: "${token}"`);
+      return res.status(403).json({ error: 'Нет доступа. Укажи ключ доступа в настройках расширения.' });
+    }
+    chatId = whitelist[token].chatId;
+    userName = whitelist[token].name || token;
+  }
+
+  console.log(`\n📨 Запрос от: ${userName} | ${sourceTitle || sourceUrl || 'неизвестно'}`);
   console.log(`📝 Текст (${text.length} симв.): ${text.slice(0, 100)}${text.length > 100 ? '…' : ''}`);
 
   try {
@@ -65,7 +89,7 @@ app.post('/ask', async (req, res) => {
     const answer = await askGemini(systemPrompt, userMessage);
     console.log(`✅ Ответ получен (${answer.length} симв.)`);
 
-    await sendToTelegram(answer);
+    await sendToTelegram(answer, chatId);
     res.json({ ok: true, answer });
 
   } catch (err) {
@@ -74,11 +98,11 @@ app.post('/ask', async (req, res) => {
   }
 });
 
-async function sendToTelegram(answer) {
+async function sendToTelegram(answer, chatId) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
 
-  if (!token || !chatId) throw new Error('TELEGRAM_BOT_TOKEN или TELEGRAM_CHAT_ID не заданы в .env');
+  if (!token) throw new Error('TELEGRAM_BOT_TOKEN не задан в .env');
+  if (!chatId) throw new Error('chatId не определён');
 
   const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: 'POST',
@@ -104,12 +128,18 @@ app.listen(PORT, () => {
 ╔══════════════════════════════════════╗
 ║        AI Hotkey Server v1.0         ║
 ╠══════════════════════════════════════╣
-║  Модель: Gemma 3 27B       ║
+║  Модель: Gemma 3 27B                 ║
 ║  Лимит: 500 запросов/день            ║
 ║  Порт: ${PORT}                          ║
 ╚══════════════════════════════════════╝
   `);
   if (!process.env.GEMINI_API_KEY) console.warn('⚠️  GEMINI_API_KEY не задан!');
   if (!process.env.TELEGRAM_BOT_TOKEN) console.warn('⚠️  TELEGRAM_BOT_TOKEN не задан!');
-  if (!process.env.TELEGRAM_CHAT_ID) console.warn('⚠️  TELEGRAM_CHAT_ID не задан!');
+
+  const wl = loadWhitelist();
+  if (wl) {
+    console.log(`🔒 Вайтлист активен: ${Object.keys(wl).length} пользователей`);
+  } else {
+    console.log('⚠️  whitelist.json не найден — используется TELEGRAM_CHAT_ID из .env');
+  }
 });

@@ -238,6 +238,11 @@
     <div class="divider"></div>
 
     <div class="field">
+      <label>Ключ доступа</label>
+      <input type="text" id="accessToken" placeholder="Получи у владельца сервера" />
+    </div>
+
+    <div class="field">
       <label>Системный промпт</label>
       <textarea id="systemPrompt" placeholder="Отвечай кратко и по делу. Если это код — объясни что он делает."></textarea>
     </div>
@@ -248,8 +253,8 @@
     <div class="divider"></div>
 
     <p class="hint">
-      Сервер: <code style="color: var(--accent)">localhost:3747</code><br>
-      Токены и chat_id — в <code>server/.env</code>
+      Ключ доступа выдаётся владельцем сервера.<br>
+      Без него запросы будут отклонены.
     </p>
   </div>
 
