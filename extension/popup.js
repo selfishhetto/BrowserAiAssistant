@@ -1,16 +1,29 @@
 const SERVER = 'https://browseraiassistant-production.up.railway.app';
 
 const systemPromptEl = document.getElementById('systemPrompt');
-const saveBtn = document.getElementById('saveBtn');
-const testBtn = document.getElementById('testBtn');
-const toast = document.getElementById('toast');
-const statusDot = document.getElementById('statusDot');
-const statusText = document.getElementById('statusText');
-const statusBar = document.getElementById('statusBar');
+const saveBtn        = document.getElementById('saveBtn');
+const testBtn        = document.getElementById('testBtn');
+const toast          = document.getElementById('toast');
+const statusDot      = document.getElementById('statusDot');
+const statusText     = document.getElementById('statusText');
+const statusBar      = document.getElementById('statusBar');
+const posLeft        = document.getElementById('posLeft');
+const posRight       = document.getElementById('posRight');
+const durationEl     = document.getElementById('duration');
 
-chrome.storage.sync.get(['systemPrompt'], (data) => {
+chrome.storage.sync.get(['systemPrompt', 'overlayPosition', 'overlayDuration'], (data) => {
   systemPromptEl.value = data.systemPrompt || '';
+  durationEl.value     = data.overlayDuration ?? 1.5;
+  setActivePos(data.overlayPosition || 'right');
 });
+
+function setActivePos(pos) {
+  posLeft.classList.toggle('active', pos === 'left');
+  posRight.classList.toggle('active', pos === 'right');
+}
+
+posLeft.addEventListener('click',  () => setActivePos('left'));
+posRight.addEventListener('click', () => setActivePos('right'));
 
 async function checkServer() {
   try {
@@ -34,7 +47,12 @@ async function checkServer() {
 checkServer();
 
 saveBtn.addEventListener('click', () => {
-  chrome.storage.sync.set({ systemPrompt: systemPromptEl.value }, () => {
+  const pos = posLeft.classList.contains('active') ? 'left' : 'right';
+  chrome.storage.sync.set({
+    systemPrompt:    systemPromptEl.value,
+    overlayPosition: pos,
+    overlayDuration: parseFloat(durationEl.value) || 1.5,
+  }, () => {
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 1800);
   });

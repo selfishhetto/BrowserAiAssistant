@@ -18,10 +18,11 @@ chrome.commands.onCommand.addListener(async (command) => {
     const result = await sendToServer(text.trim(), tab.url, tab.title);
 
     if (result?.answer) {
+      const settings = await chrome.storage.sync.get(['overlayPosition', 'overlayDuration']);
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: injectAnswerUI,
-        args: [result.answer],
+        args: [result.answer, settings.overlayPosition || 'right', settings.overlayDuration ?? 1.5],
       });
     }
 
@@ -31,42 +32,42 @@ chrome.commands.onCommand.addListener(async (command) => {
 });
 
 // Эта функция сериализуется и выполняется прямо на странице
-function injectAnswerUI(answerText) {
+function injectAnswerUI(answerText, position, durationSec) {
   document.getElementById('ai-hotkey-overlay')?.remove();
 
   const box = document.createElement('div');
   box.id = 'ai-hotkey-overlay';
   Object.assign(box.style, {
-    position:     'fixed',
-    bottom:       '24px',
-    right:        '24px',
-    zIndex:       '2147483647',
-    maxWidth:     '340px',
-    background:   '#18181b',
-    color:        '#f4f4f5',
-    fontFamily:   'system-ui, sans-serif',
-    fontSize:     '15px',
-    lineHeight:   '1.5',
-    padding:      '14px 18px',
-    borderRadius: '12px',
-    boxShadow:    '0 4px 24px rgba(0,0,0,0.45)',
-    borderLeft:   '4px solid #22c55e',
-    cursor:       'pointer',
-    userSelect:   'none',
+    position:       'fixed',
+    bottom:         '24px',
+    [position === 'left' ? 'left' : 'right']: '24px',
+    zIndex:         '2147483647',
+    maxWidth:       '340px',
+    background:     'rgba(255,255,255,0.15)',
+    backdropFilter: 'blur(12px)',
+    webkitBackdropFilter: 'blur(12px)',
+    color:          '#000',
+    fontFamily:     'system-ui, sans-serif',
+    fontSize:       '15px',
+    fontWeight:     '600',
+    lineHeight:     '1.5',
+    padding:        '12px 16px',
+    borderRadius:   '12px',
+    boxShadow:      '0 2px 16px rgba(0,0,0,0.18)',
+    borderLeft:     '4px solid #22c55e',
+    textShadow:     '0 1px 2px rgba(255,255,255,0.6)',
+    cursor:         'pointer',
+    userSelect:     'none',
   });
   box.title = 'Нажми чтобы закрыть';
   box.onclick = () => box.remove();
 
-  const label = document.createElement('div');
-  label.style.cssText = 'font-size:11px;color:#71717a;margin-bottom:4px;letter-spacing:.05em';
-  label.textContent = 'AI ANSWER';
-
   const body = document.createElement('div');
   body.textContent = answerText.trim();
 
-  box.append(label, body);
+  box.append(body);
   document.body.appendChild(box);
-  setTimeout(() => box.remove(), 12000);
+  setTimeout(() => box.remove(), durationSec * 1000);
 
   // DOM-подсветка нужного варианта
   const trimmed = answerText.trim();
