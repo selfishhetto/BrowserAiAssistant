@@ -11,7 +11,11 @@ chrome.commands.onCommand.addListener(async (command) => {
 
       if (!text) return;
 
-      await sendToServer(text, tab.url, tab.title);
+      const result = await sendToServer(text, tab.url, tab.title);
+
+      if (result?.answer) {
+        await chrome.tabs.sendMessage(tab.id, { type: 'HIGHLIGHT_ANSWER', answer: result.answer });
+      }
 
     } catch (err) {
       console.error('AI Hotkey error:', err);
