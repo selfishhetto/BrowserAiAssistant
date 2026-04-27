@@ -38,28 +38,20 @@ function injectAnswerUI(answerText, position, durationSec) {
   const box = document.createElement('div');
   box.id = 'ai-hotkey-overlay';
   Object.assign(box.style, {
-    position:       'fixed',
-    bottom:         '24px',
-    [position === 'left' ? 'left' : 'right']: '24px',
-    zIndex:         '2147483647',
-    maxWidth:       '340px',
-    background:     'rgba(255,255,255,0.15)',
-    backdropFilter: 'blur(12px)',
-    webkitBackdropFilter: 'blur(12px)',
-    color:          '#000',
-    fontFamily:     'system-ui, sans-serif',
-    fontSize:       '15px',
-    fontWeight:     '600',
-    lineHeight:     '1.5',
-    padding:        '12px 16px',
-    borderRadius:   '12px',
-    boxShadow:      '0 2px 16px rgba(0,0,0,0.18)',
-    borderLeft:     '4px solid #22c55e',
-    textShadow:     '0 1px 2px rgba(255,255,255,0.6)',
-    cursor:         'pointer',
-    userSelect:     'none',
+    position:   'fixed',
+    bottom:     '20px',
+    [position === 'left' ? 'left' : 'right']: '20px',
+    zIndex:     '2147483647',
+    color:      '#000',
+    fontFamily: 'system-ui, sans-serif',
+    fontSize:   '12px',
+    fontWeight: '700',
+    lineHeight: '1.4',
+    textShadow: '0 0 4px #fff, 0 0 8px #fff',
+    cursor:     'pointer',
+    userSelect: 'none',
+    maxWidth:   '280px',
   });
-  box.title = 'Нажми чтобы закрыть';
   box.onclick = () => box.remove();
 
   const body = document.createElement('div');
