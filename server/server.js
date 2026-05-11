@@ -85,18 +85,13 @@ async function sendToTelegram(answer) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: chatId,
-      text: escapeMarkdown(answer),
-      parse_mode: 'MarkdownV2'
+      text: answer
     })
   });
 
   const data = await response.json();
   if (!data.ok) throw new Error(`Telegram API error: ${data.description}`);
   console.log('📱 Отправлено в Telegram!');
-}
-
-function escapeMarkdown(text) {
-  return text.replace(/[_*[\]()~`>#+\-=|{}.!\\]/g, '\\$&');
 }
 
 app.listen(PORT, () => {
