@@ -15,10 +15,10 @@ chrome.commands.onCommand.addListener(async (command) => {
 
     if (!text?.trim()) return;
 
-    const result = await sendToServer(text.trim(), tab.url, tab.title);
+    const settings = await chrome.storage.sync.get(['overlayPosition', 'overlayDuration', 'model']);
+    const result = await sendToServer(text.trim(), tab.url, tab.title, settings.model);
 
     if (result?.answer) {
-      const settings = await chrome.storage.sync.get(['overlayPosition', 'overlayDuration']);
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: injectAnswerUI,
@@ -92,11 +92,11 @@ function injectAnswerUI(answerText, position, durationSec) {
   }
 }
 
-async function sendToServer(text, sourceUrl, sourceTitle) {
+async function sendToServer(text, sourceUrl, sourceTitle, model) {
   const res = await fetch(`${SERVER_URL}/ask`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ text, sourceUrl, sourceTitle }),
+    body:    JSON.stringify({ text, sourceUrl, sourceTitle, model }),
   });
 
   if (!res.ok) {

@@ -10,10 +10,12 @@ const statusBar      = document.getElementById('statusBar');
 const posLeft        = document.getElementById('posLeft');
 const posRight       = document.getElementById('posRight');
 const durationEl     = document.getElementById('duration');
+const modelSelect    = document.getElementById('modelSelect');
 
-chrome.storage.sync.get(['systemPrompt', 'overlayPosition', 'overlayDuration'], (data) => {
-  systemPromptEl.value = data.systemPrompt || '';
-  durationEl.value     = data.overlayDuration ?? 1.5;
+chrome.storage.sync.get(['systemPrompt', 'overlayPosition', 'overlayDuration', 'model'], (data) => {
+  systemPromptEl.value  = data.systemPrompt || '';
+  durationEl.value      = data.overlayDuration ?? 1.5;
+  modelSelect.value     = data.model || 'gemini-2.0-flash';
   setActivePos(data.overlayPosition || 'right');
 });
 
@@ -52,6 +54,7 @@ saveBtn.addEventListener('click', () => {
     systemPrompt:    systemPromptEl.value,
     overlayPosition: pos,
     overlayDuration: parseFloat(durationEl.value) || 1.5,
+    model:           modelSelect.value,
   }, () => {
     toast.classList.add('show');
     setTimeout(() => toast.classList.remove('show'), 1800);

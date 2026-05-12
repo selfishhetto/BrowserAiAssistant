@@ -105,7 +105,7 @@
       letter-spacing: 0.1em;
     }
 
-    input, textarea {
+    input, textarea, select {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 6px;
@@ -118,9 +118,11 @@
       width: 100%;
     }
 
-    input:focus, textarea:focus {
+    input:focus, textarea:focus, select:focus {
       border-color: var(--accent);
     }
+
+    select { cursor: pointer; }
 
     textarea {
       resize: none;
@@ -265,6 +267,17 @@
     </div>
 
     <div class="divider"></div>
+
+    <div class="field">
+      <label>Модель</label>
+      <select id="modelSelect">
+        <option value="gemini-2.0-flash">gemini-2.0-flash (быстрая)</option>
+        <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite (лёгкая)</option>
+        <option value="gemini-2.5-flash">gemini-2.5-flash (умнее)</option>
+        <option value="gemini-2.5-pro">gemini-2.5-pro (самая умная)</option>
+        <option value="gemini-1.5-flash">gemini-1.5-flash (старая)</option>
+      </select>
+    </div>
 
     <div class="field">
       <label>Системный промпт</label>

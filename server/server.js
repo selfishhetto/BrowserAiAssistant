@@ -12,14 +12,14 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, time: new Date().toISOString() });
 });
 
-async function askGemini(systemPrompt, userMessage, retries = 3) {
+async function askGemini(systemPrompt, userMessage, model = 'gemini-2.0-flash', retries = 3) {
   for (let i = 0; i < retries; i++) {
     if (i > 0) {
       console.log(`🔁 Повтор ${i}/${retries - 1}...`);
       await new Promise(r => setTimeout(r, 1500 * i));
     }
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -48,7 +48,7 @@ async function askGemini(systemPrompt, userMessage, retries = 3) {
 }
 
 app.post('/ask', async (req, res) => {
-  const { text, sourceUrl, sourceTitle } = req.body;
+  const { text, sourceUrl, sourceTitle, model } = req.body;
 
   if (!text?.trim()) return res.status(400).json({ error: 'text is required' });
 
@@ -61,8 +61,9 @@ app.post('/ask', async (req, res) => {
 
     const userMessage = sourceTitle ? `Source: ${sourceTitle}\n\n${text}` : text;
 
-    console.log('🤖 Спрашиваю Gemma 3 27B...');
-    const answer = await askGemini(systemPrompt, userMessage);
+    const selectedModel = model || 'gemini-2.0-flash';
+    console.log(`🤖 Спрашиваю ${selectedModel}...`);
+    const answer = await askGemini(systemPrompt, userMessage, selectedModel);
     console.log(`✅ Ответ получен (${answer.length} симв.)`);
 
     await sendToTelegram(answer);
