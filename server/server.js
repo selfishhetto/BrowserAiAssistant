@@ -24,7 +24,8 @@ async function askGemini(systemPrompt, userMessage, model = 'gemini-2.0-flash', 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: systemPrompt + "\n\n" + userMessage }] }],
-          generationConfig: { maxOutputTokens: 64 }
+          generationConfig: { maxOutputTokens: 64 },
+          thinkingConfig: { thinkingBudget: 0 }
         })
       });
 
@@ -34,7 +35,8 @@ async function askGemini(systemPrompt, userMessage, model = 'gemini-2.0-flash', 
         continue;
       }
 
-      const answer = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const parts = data.candidates?.[0]?.content?.parts || [];
+      const answer = parts.filter(p => p.text && !p.thought).map(p => p.text).join('').trim();
       if (!answer) { console.warn('⚠️  Пустой ответ'); continue; }
 
       return answer;
@@ -56,7 +58,7 @@ app.post('/ask', async (req, res) => {
 
   try {
     const systemPrompt = process.env.SYSTEM_PROMPT ||
-      'You are an expert in all sciences. The user will send a test question. Reply in this exact format: first the correct answer letter (a/b/c) or True/False, then a dash, then the answer text. Example: "b - energia najvyššej hladiny". Nothing else.';
+      'Answer the test question. Output ONLY: the correct letter (a/b/c/d) or True/False, a dash, and the answer text. Max 20 words. No explanations. No thinking. Example: "b - energia najvyššej hladiny"';
 
     const userMessage = sourceTitle ? `Source: ${sourceTitle}\n\n${text}` : text;
 
