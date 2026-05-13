@@ -11,7 +11,8 @@
     "notifications"
   ],
   "host_permissions": [
-    "https://browseraiassistant-production.up.railway.app/*"
+    "https://browseraiassistant-production.up.railway.app/*",
+    "<all_urls>"
   ],
   "background": {
     "service_worker": "background.js"
