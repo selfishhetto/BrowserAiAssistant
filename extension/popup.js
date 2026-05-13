@@ -15,7 +15,7 @@ const modelSelect    = document.getElementById('modelSelect');
 chrome.storage.sync.get(['systemPrompt', 'overlayPosition', 'overlayDuration', 'model'], (data) => {
   systemPromptEl.value  = data.systemPrompt || '';
   durationEl.value      = data.overlayDuration ?? 1.5;
-  modelSelect.value     = data.model || 'gemini-2.0-flash';
+  modelSelect.value     = data.model || 'gemma-4-31b-it';
   setActivePos(data.overlayPosition || 'right');
 });
 

@@ -61,8 +61,8 @@ app.post('/ask', async (req, res) => {
 
     const userMessage = sourceTitle ? `Source: ${sourceTitle}\n\n${text}` : text;
 
-    const VALID_MODELS = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-1.5-flash'];
-    const selectedModel = VALID_MODELS.includes(model) ? model : 'gemini-2.0-flash';
+    const VALID_MODELS = ['gemma-4-31b-it', 'gemma-4-26b-a4b-it'];
+    const selectedModel = VALID_MODELS.includes(model) ? model : 'gemma-4-31b-it';
     console.log(`🤖 Спрашиваю ${selectedModel}...`);
     const answer = await askGemini(systemPrompt, userMessage, selectedModel);
     console.log(`✅ Ответ получен (${answer.length} симв.)`);
@@ -101,7 +101,7 @@ app.listen(PORT, () => {
 ╔══════════════════════════════════════╗
 ║        AI Hotkey Server v1.0         ║
 ╠══════════════════════════════════════╣
-║  Модель: gemini-2.0-flash            ║
+║  Модель: gemma-4-31b-it              ║
 ║  Лимит: 500 запросов/день            ║
 ║  Порт: ${PORT}                          ║
 ╚══════════════════════════════════════╝
