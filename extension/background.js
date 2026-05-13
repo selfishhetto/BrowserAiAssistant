@@ -1,10 +1,14 @@
 const SERVER_URL = 'https://browseraiassistant-production.up.railway.app';
 
+let busy = false;
+
 chrome.commands.onCommand.addListener(async (command) => {
   if (command !== 'send-to-ai') return;
+  if (busy) return;
+  busy = true;
 
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (!tab?.id) return;
+  if (!tab?.id) { busy = false; return; }
 
   try {
     // Получить выделенный текст напрямую, без content.js
@@ -28,6 +32,8 @@ chrome.commands.onCommand.addListener(async (command) => {
 
   } catch (err) {
     console.error('AI Hotkey error:', err);
+  } finally {
+    busy = false;
   }
 });
 
