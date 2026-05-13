@@ -12,39 +12,41 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, time: new Date().toISOString() });
 });
 
-async function askGemini(systemPrompt, userMessage, model = 'gemini-2.0-flash', retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    if (i > 0) {
-      console.log(`🔁 Повтор ${i}/${retries - 1}...`);
-      await new Promise(r => setTimeout(r, 1500 * i));
-    }
+const ALL_MODELS = ['gemma-4-31b-it', 'gemma-4-26b-a4b-it', 'gemma-3-27b-it'];
+
+async function askModel(systemPrompt, userMessage, model) {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: systemPrompt + "\n\n" + userMessage }] }],
+      generationConfig: { maxOutputTokens: 64 }
+    })
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || `HTTP ${res.status}`);
+
+  const parts = data.candidates?.[0]?.content?.parts || [];
+  const answer = parts.filter(p => p.text && !p.thought).map(p => p.text).join('').trim();
+  if (!answer) throw new Error('Пустой ответ');
+
+  return answer;
+}
+
+async function askWithFallback(systemPrompt, userMessage, preferredModel) {
+  const queue = [preferredModel, ...ALL_MODELS.filter(m => m !== preferredModel)];
+
+  for (const model of queue) {
+    console.log(`🤖 Спрашиваю ${model}...`);
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: systemPrompt + "\n\n" + userMessage }] }],
-          generationConfig: { maxOutputTokens: 64 }
-        })
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        console.warn(`⚠️  ${data.error?.message || `HTTP ${res.status}`}`);
-        continue;
-      }
-
-      const parts = data.candidates?.[0]?.content?.parts || [];
-      const answer = parts.filter(p => p.text && !p.thought).map(p => p.text).join('').trim();
-      if (!answer) { console.warn('⚠️  Пустой ответ'); continue; }
-
+      const answer = await askModel(systemPrompt, userMessage, model);
       return answer;
-
     } catch (err) {
-      console.warn(`⚠️  ${err.message}`);
+      console.warn(`⚠️  ${model}: ${err.message}`);
     }
   }
-  throw new Error('Gemini недоступен, попробуй позже');
+  throw new Error('Все модели недоступны, попробуй позже');
 }
 
 app.post('/ask', async (req, res) => {
@@ -61,10 +63,8 @@ app.post('/ask', async (req, res) => {
 
     const userMessage = sourceTitle ? `Source: ${sourceTitle}\n\n${text}` : text;
 
-    const VALID_MODELS = ['gemma-4-31b-it', 'gemma-4-26b-a4b-it'];
-    const selectedModel = VALID_MODELS.includes(model) ? model : 'gemma-4-31b-it';
-    console.log(`🤖 Спрашиваю ${selectedModel}...`);
-    const answer = await askGemini(systemPrompt, userMessage, selectedModel);
+    const selectedModel = ALL_MODELS.includes(model) ? model : ALL_MODELS[0];
+    const answer = await askWithFallback(systemPrompt, userMessage, selectedModel);
     console.log(`✅ Ответ получен (${answer.length} симв.)`);
 
     res.json({ ok: true, answer });

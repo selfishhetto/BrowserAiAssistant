@@ -1,8 +1,21 @@
 const SERVER_URL = 'https://browseraiassistant-production.up.railway.app';
 
 let busy = false;
+let lastAnswer = null;
 
 chrome.commands.onCommand.addListener(async (command) => {
+  if (command === 'copy-answer') {
+    if (!lastAnswer) return;
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (!tab?.id) return;
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: (text) => navigator.clipboard.writeText(text),
+      args: [lastAnswer],
+    });
+    return;
+  }
+
   if (command !== 'send-to-ai') return;
   if (busy) return;
   busy = true;
@@ -23,6 +36,7 @@ chrome.commands.onCommand.addListener(async (command) => {
     const result = await sendToServer(text.trim(), tab.url, tab.title, settings.model);
 
     if (result?.answer) {
+      lastAnswer = result.answer;
       await chrome.scripting.executeScript({
         target: { tabId: tab.id },
         func: injectAnswerUI,

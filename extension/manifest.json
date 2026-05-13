@@ -37,6 +37,13 @@
         "mac": "Command+Shift+Y"
       },
       "description": "Отправить выделенный текст в AI"
+    },
+    "copy-answer": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+X",
+        "mac": "Command+Shift+X"
+      },
+      "description": "Скопировать последний ответ в буфер обмена"
     }
   },
   "content_scripts": [
