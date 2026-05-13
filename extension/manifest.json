@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "AI Hotkey → Telegram",
+  "name": "Hotkey",
   "version": "1.0",
-  "description": "Выдели текст, нажми Ctrl+Shift+Y — ответ придёт в Telegram",
+  "description": "Выдели текст, нажми Alt+C — получи ответ",
   "permissions": [
     "activeTab",
     "scripting",
@@ -33,10 +33,10 @@
   "commands": {
     "send-to-ai": {
       "suggested_key": {
-        "default": "Ctrl+Shift+Y",
+        "default": "Alt+C",
         "mac": "Command+Shift+Y"
       },
-      "description": "Отправить выделенный текст в AI"
+      "description": "Отправить выделенный текст"
     },
     "copy-answer": {
       "suggested_key": {

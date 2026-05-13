@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Hotkey</title>
+  <title>Hotkey</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@400;700&display=swap');
 
@@ -17,11 +17,10 @@
       --accent-dim: rgba(0, 229, 160, 0.12);
       --text: #e8e8f0;
       --muted: #6b6b7a;
-      --danger: #ff4d6a;
     }
 
     body {
-      width: 320px;
+      width: 260px;
       background: var(--bg);
       color: var(--text);
       font-family: 'JetBrains Mono', monospace;
@@ -31,7 +30,7 @@
     }
 
     .header {
-      padding: 16px 18px 14px;
+      padding: 14px 16px 12px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
@@ -40,61 +39,26 @@
     }
 
     .logo {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       background: var(--accent);
       border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 13px;
       flex-shrink: 0;
     }
 
     .header-text h1 {
       font-family: 'Unbounded', sans-serif;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       color: var(--text);
       letter-spacing: 0.05em;
     }
 
-    .header-text p {
-      color: var(--muted);
-      font-size: 10px;
-      margin-top: 1px;
-    }
-
-    .status-bar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      background: var(--accent-dim);
-      border-bottom: 1px solid var(--border);
-      font-size: 10px;
-      color: var(--accent);
-    }
-
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    .status-dot.offline {
-      background: var(--danger);
-      animation: none;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .body { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+    .body { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
 
     .field { display: flex; flex-direction: column; gap: 5px; }
 
@@ -105,7 +69,7 @@
       letter-spacing: 0.1em;
     }
 
-    input, textarea, select {
+    input, select {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 6px;
@@ -118,33 +82,31 @@
       width: 100%;
     }
 
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--accent);
-    }
-
+    input:focus, select:focus { border-color: var(--accent); }
     select { cursor: pointer; }
 
-    textarea {
-      resize: none;
-      height: 60px;
-      line-height: 1.5;
-    }
+    .toggle-group { display: flex; gap: 6px; }
 
-    .hotkey-badge {
-      display: inline-flex;
-      gap: 3px;
-      align-items: center;
-    }
-
-    kbd {
+    .toggle-btn {
+      flex: 1;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 2px 6px;
+      border-radius: 6px;
+      color: var(--muted);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--accent);
+      font-size: 13px;
+      padding: 7px;
+      cursor: pointer;
+      transition: all 0.15s;
     }
+
+    .toggle-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .toggle-btn:hover:not(.active) { border-color: var(--text); color: var(--text); }
 
     .btn {
       background: var(--accent);
@@ -164,17 +126,6 @@
     .btn:hover { opacity: 0.88; }
     .btn:active { transform: scale(0.98); }
 
-    .btn-secondary {
-      background: transparent;
-      color: var(--muted);
-      border: 1px solid var(--border);
-      font-family: 'JetBrains Mono', monospace;
-      font-weight: 400;
-      margin-top: -6px;
-    }
-
-    .btn-secondary:hover { color: var(--text); border-color: var(--text); opacity: 1; }
-
     .saved-toast {
       position: fixed;
       bottom: 12px;
@@ -191,83 +142,18 @@
       pointer-events: none;
     }
 
-    .saved-toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 0 -18px;
-    }
-
-    .hint {
-      font-size: 10px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .hint a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .toggle-group {
-      display: flex;
-      gap: 6px;
-    }
-
-    .toggle-btn {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      padding: 7px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    .toggle-btn.active {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-dim);
-    }
-
-    .toggle-btn:hover:not(.active) {
-      border-color: var(--text);
-      color: var(--text);
-    }
+    .saved-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
   <div class="header">
     <div class="logo">⚡</div>
     <div class="header-text">
-      <h1>AI HOTKEY</h1>
-      <p>Выдели → Нажми → Получи</p>
+      <h1>HOTKEY</h1>
     </div>
-  </div>
-
-  <div class="status-bar" id="statusBar">
-    <div class="status-dot" id="statusDot"></div>
-    <span id="statusText">Проверяю сервер...</span>
   </div>
 
   <div class="body">
-    <div class="field">
-      <label>Хоткей</label>
-      <div class="hotkey-badge">
-        <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd>
-        <span style="color: var(--muted); margin-left: 6px; font-size: 10px;">/ Cmd на Mac</span>
-      </div>
-    </div>
-
-    <div class="divider"></div>
-
     <div class="field">
       <label>Модель</label>
       <select id="modelSelect">
@@ -277,20 +163,10 @@
     </div>
 
     <div class="field">
-      <label>Системный промпт</label>
-      <textarea id="systemPrompt" placeholder="Отвечай кратко и по делу. Если это код — объясни что он делает."></textarea>
-    </div>
-
-    <button class="btn" id="saveBtn">СОХРАНИТЬ</button>
-    <button class="btn btn-secondary" id="testBtn">Тест → отправить привет в Telegram</button>
-
-    <div class="divider"></div>
-
-    <div class="field">
-      <label>Позиция оверлея</label>
+      <label>Позиция</label>
       <div class="toggle-group">
-        <button class="toggle-btn" id="posLeft">↙ Слева</button>
-        <button class="toggle-btn" id="posRight">↘ Справа</button>
+        <button class="toggle-btn" id="posLeft">←</button>
+        <button class="toggle-btn" id="posRight">→</button>
       </div>
     </div>
 
@@ -299,12 +175,7 @@
       <input type="number" id="duration" min="0.5" max="30" step="0.5" value="1.5" />
     </div>
 
-    <div class="divider"></div>
-
-    <p class="hint">
-      Сервер: <code style="color: var(--accent)">localhost:3747</code><br>
-      Токены и chat_id — в <code>server/.env</code>
-    </p>
+    <button class="btn" id="saveBtn">СОХРАНИТЬ</button>
   </div>
 
   <div class="saved-toast" id="toast">Сохранено ✓</div>
