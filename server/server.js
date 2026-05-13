@@ -37,7 +37,9 @@ async function askModel(systemPrompt, userMessage, model) {
 async function askWithFallback(systemPrompt, userMessage, preferredModel) {
   const queue = [preferredModel, ...ALL_MODELS.filter(m => m !== preferredModel)];
 
-  for (const model of queue) {
+  for (let i = 0; i < queue.length; i++) {
+    const model = queue[i];
+    if (i > 0) await new Promise(r => setTimeout(r, 2000));
     console.log(`🤖 Спрашиваю ${model}...`);
     try {
       const answer = await askModel(systemPrompt, userMessage, model);
