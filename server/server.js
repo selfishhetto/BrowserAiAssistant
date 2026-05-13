@@ -12,7 +12,7 @@ app.get('/health', (req, res) => {
   res.json({ ok: true, time: new Date().toISOString() });
 });
 
-const ALL_MODELS = ['gemma-4-31b-it', 'gemma-4-26b-a4b-it', 'gemma-3-27b-it'];
+const ALL_MODELS = ['gemma-4-31b-it', 'gemma-4-26b-a4b-it'];
 
 async function askModel(systemPrompt, userMessage, model) {
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${process.env.GEMINI_API_KEY}`, {
