@@ -23,9 +23,8 @@ async function askGemini(systemPrompt, userMessage, model = 'gemini-2.0-flash', 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          
           contents: [{ parts: [{ text: systemPrompt + "\n\n" + userMessage }] }],
-          generationConfig: { maxOutputTokens: 512 }
+          generationConfig: { maxOutputTokens: 64 }
         })
       });
 
@@ -87,7 +86,7 @@ async function sendToTelegram(answer) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       chat_id: chatId,
-      text: answer
+      text: answer.slice(0, 4000)
     })
   });
 
