@@ -24,8 +24,7 @@ async function askGemini(systemPrompt, userMessage, model = 'gemini-2.0-flash', 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: systemPrompt + "\n\n" + userMessage }] }],
-          generationConfig: { maxOutputTokens: 64 },
-          thinkingConfig: { thinkingBudget: 0 }
+          generationConfig: { maxOutputTokens: 64 }
         })
       });
 
@@ -68,7 +67,6 @@ app.post('/ask', async (req, res) => {
     const answer = await askGemini(systemPrompt, userMessage, selectedModel);
     console.log(`✅ Ответ получен (${answer.length} симв.)`);
 
-    await sendToTelegram(answer);
     res.json({ ok: true, answer });
 
   } catch (err) {
